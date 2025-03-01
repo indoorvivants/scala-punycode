@@ -66,7 +66,7 @@ object Punycode {
     var in = if (b > 0) b + 1 else 0
     var i = 0
     while (in < codepoints.length) {
-      trace(s"in = ${codepoints(in).toChar}, out = $out")
+      trace(s"in = ${codepoints(in).toChar}, out = $out, bias = $bias")
 
       var oldi = i
       var w = 1
@@ -99,7 +99,9 @@ object Punycode {
       n += i / (out + 1)
       i = i % (out + 1)
 
-      trace(s"  adding ${n.toChar} ($n) at $i")
+      trace(
+        s"  adding ${n.toChar} ($n, 0x${n.formatted("%04x").toUpperCase}) at $i"
+      )
       insertionsBuilder += i -> n.toChar
       i += 1
       out += 1
@@ -107,27 +109,25 @@ object Punycode {
       // TODO: handle big output
     }
 
-    val insertions = collection.mutable.Map(insertionsBuilder.result(): _*)
-    val basic = result.result()
-
-    val newCodepoints = Array.ofDim[Char](out)
-    var offset = 0
-    trace(s"insertions = $insertions, basic = ${basic.toList}")
-    newCodepoints.indices.foreach { i =>
-      trace(s"  i=$i, offset=$offset")
-      if (insertions.contains(i)) {
-        newCodepoints(i) = insertions(i)
-        offset += 1
-      } else {
-        newCodepoints(i) = basic(i - offset)
+    val insertionsList = insertionsBuilder.result()
+    trace(s"insertions = $insertionsList")
+    var decoded = result.result().toList
+    insertionsList.foreach { case (i, n) =>
+      trace(
+        s"  ${n.toChar} ($n, 0x${n.toInt.formatted("%04d").toUpperCase}) at $i, decoded = $decoded"
+      )
+      if (decoded.length == i) {
+        decoded = decoded :+ n.toChar
+      } else if (i == 0) {
+        decoded = n.toChar +: decoded
+      } else if (i > 0 && i < decoded.length) {
+        decoded = (decoded.take(i) :+ n.toChar) ++ decoded.drop(i)
       }
-
     }
 
     trace(s"out=$out")
 
-    // if (positionOfLastDelimiter == -1) {}
-    new String(newCodepoints)
+    new String(decoded.toArray)
   }
 
   def decodeDigit(cp: Int, base: Int) = {

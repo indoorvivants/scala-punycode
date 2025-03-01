@@ -76,14 +76,12 @@ class SpecTests extends munit.FunSuite {
       Punycode.decode("Bahnhof Mnchen-Ost-u6b"),
       "Bahnhof München-Ost"
     )
-    // assertEquals(
-    //   Punycode.decodeTraced("MajiKoi5-783gue6qz075azm5e"),
-    //   "MajiでKoiする5秒前"
-    // )
+
     assertEquals(
-      Punycode.decodeTraced("hellohello-883imf"),
-      "helloфhelloы"
+      Punycode.decode("MajiKoi5-783gue6qz075azm5e"),
+      "MajiでKoiする5秒前"
     )
+
   }
 
   def deHex(hex: String): String = {
