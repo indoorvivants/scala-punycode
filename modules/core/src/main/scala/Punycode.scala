@@ -18,18 +18,42 @@ package punycode
 
 object Punycode {
 
+  /** Encode a Punycode string. Throws exceptions
+    *
+    * @param input
+    * @return
+    *   punycode string
+    */
   def encode(input: String): String = {
     bootstringEncode(input, PunycodeBootstringConfig, noTrace)
   }
 
+  /** Decode a Punycode string. Throws exceptions
+    *
+    * @param input
+    * @return
+    *   decode UTF-8 string
+    */
   def decode(input: String): String = {
     bootstringDecode(input, PunycodeBootstringConfig, noTrace)
   }
 
+  /** Decode a Punycode string, tracing the execution. Only used in tests
+    *
+    * @param input
+    * @return
+    *   decode UTF-8 string
+    */
   private[punycode] def decodeTraced(input: String): String = {
     bootstringDecode(input, PunycodeBootstringConfig, System.err.println(_))
   }
 
+  /** Encode a Punycode string, tracing the execution. Only used in tests
+    *
+    * @param input
+    * @return
+    *   punycode string
+    */
   private[punycode] def encodeTraced(input: String): String = {
     bootstringEncode(
       input,
@@ -133,7 +157,7 @@ object Punycode {
     sb.toString()
   }
 
-  def decodeDigit(cp: Int, base: Int) = {
+  private final def decodeDigit(cp: Int, base: Int) = {
     if (cp - 48 < 10) cp - 22
     else {
       if (cp - 65 < 26) cp - 65
@@ -162,13 +186,6 @@ object Punycode {
 
     if (numBasic > 0) {
       result += '-'
-    }
-
-    def flagged(bcp: Int) = (bcp - 65) < 26
-
-    def encodeDigit(d: Int, flag: Boolean): Char = {
-      val f = if (flag) 1 else 0
-      (d + 22 + 75 * (if (d < 26) 1 else 0) - (f << 5)).toChar
     }
 
     var n = config.initialN
@@ -245,6 +262,13 @@ object Punycode {
     new String(result.result())
   }
 
+  private final def flagged(bcp: Int) = (bcp - 65) < 26
+
+  private final def encodeDigit(d: Int, flag: Boolean): Char = {
+    val f = if (flag) 1 else 0
+    (d + 22 + 75 * (if (d < 26) 1 else 0) - (f << 5)).toChar
+  }
+
   private def adapt(
       config: BootstringConfig,
       deltaInit: Int,
@@ -261,14 +285,14 @@ object Punycode {
     k + ((config.base - config.tmin + 1) * delta) / (delta + config.skew)
   }
 
-  private case class BootstringConfig(
-      base: Int,
-      tmin: Int,
-      tmax: Int,
-      skew: Int,
-      damp: Int,
-      initialBias: Int,
-      initialN: Int
+  private class BootstringConfig(
+      val base: Int,
+      val tmin: Int,
+      val tmax: Int,
+      val skew: Int,
+      val damp: Int,
+      val initialBias: Int,
+      val initialN: Int
   )
 
   private def verify(bc: BootstringConfig): Boolean = {
@@ -276,7 +300,7 @@ object Punycode {
   }
 
   private final val PunycodeBootstringConfig =
-    BootstringConfig(
+    new BootstringConfig(
       base = 36,
       tmin = 1,
       tmax = 26,
