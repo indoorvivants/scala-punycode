@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Anton Sviridov
+ * Copyright 2025 Anton Sviridov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ object Punycode {
     val caseFlags = codepoints.map(_.toChar.isUpper)
     trace(s"b = $b")
 
-    val insertionsBuilder = Array.newBuilder[(Int, Char)]
+    val insertionsBuilder = List.newBuilder[(Int, Int)]
 
     var out = 0
     for (j <- 0 until b) {
@@ -102,7 +102,7 @@ object Punycode {
       trace(
         s"  adding ${n.toChar} ($n, 0x${n.formatted("%04x").toUpperCase}) at $i"
       )
-      insertionsBuilder += i -> n.toChar
+      insertionsBuilder += i -> n
       i += 1
       out += 1
 
@@ -111,23 +111,26 @@ object Punycode {
 
     val insertionsList = insertionsBuilder.result()
     trace(s"insertions = $insertionsList")
-    var decoded = result.result().toList
+    var decoded = result.result().toList.map(_.toInt)
     insertionsList.foreach { case (i, n) =>
       trace(
-        s"  ${n.toChar} ($n, 0x${n.toInt.formatted("%04d").toUpperCase}) at $i, decoded = $decoded"
+        s"  ${n.toChar} ($n, 0x${n.toInt.formatted("%04x").toUpperCase}) at $i, decoded = $decoded"
       )
       if (decoded.length == i) {
-        decoded = decoded :+ n.toChar
+        decoded = decoded :+ n
       } else if (i == 0) {
-        decoded = n.toChar +: decoded
+        decoded = n +: decoded
       } else if (i > 0 && i < decoded.length) {
-        decoded = (decoded.take(i) :+ n.toChar) ++ decoded.drop(i)
+        decoded = (decoded.take(i) :+ n) ++ decoded.drop(i)
       }
     }
 
     trace(s"out=$out")
 
-    new String(decoded.toArray)
+    val sb = new java.lang.StringBuilder()
+    decoded.foreach { c => sb.appendCodePoint(c) }
+
+    sb.toString()
   }
 
   def decodeDigit(cp: Int, base: Int) = {

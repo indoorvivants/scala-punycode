@@ -82,6 +82,9 @@ class SpecTests extends munit.FunSuite {
       "MajiでKoiする5秒前"
     )
 
+    assertEquals(Punycode.decode("bcher-kva8445foa"), "「bücher」")
+
+    assertEquals(Punycode.decode("n28h"), "😉")
   }
 
   def deHex(hex: String): String = {

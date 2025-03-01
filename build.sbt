@@ -7,9 +7,9 @@ inThisBuild(
     organization := "com.indoorvivants",
     organizationName := "Anton Sviridov",
     homepage := Some(
-      url("https://github.com/indoorvivants/scala-library-template")
+      url("https://github.com/indoorvivants/scala-punycode")
     ),
-    startYear := Some(2020),
+    startYear := Some(2025),
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
     ),
@@ -48,7 +48,7 @@ lazy val root = project.aggregate(core.projectRefs*)
 lazy val core = projectMatrix
   .in(file("modules/core"))
   .settings(
-    name := "core"
+    name := "punycode"
   )
   .settings(munitSettings)
   .jvmPlatform(scalaVersions)
