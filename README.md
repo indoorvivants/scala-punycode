@@ -6,5 +6,5 @@ Sample usage
 
 ```scala
 import punycode._
-assert(Punycode.encode("example.com") == Punycode.decode("xn--exmpl-1ga"))
+assert(Punycode.encode("hello 👋 world") == Punycode.decode("hello  world-m217k"))
 ````
