@@ -3,8 +3,6 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.9.2")
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.10.1")
 
 // Code quality
-addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.2")
-
 addSbtPlugin("ch.epfl.scala" % "sbt-missinglink" % "0.3.6")
 
 addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.3.1")
